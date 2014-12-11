@@ -38,7 +38,8 @@ func (ipvx *ipvxBase) create(addr string) (*IPVX, error) {
 
 	parsedSegments := make([]int64, splitLen)
 	for i, segment := range split {
-		v, err := strconv.ParseInt(segment, ipvx.base, ipvx.bitCountPerSegment)
+		trimmed := strings.Trim(segment, " ")
+		v, err := strconv.ParseInt(trimmed, ipvx.base, ipvx.bitCountPerSegment)
 		if err != nil {
 			return nil, err
 		}

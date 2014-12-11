@@ -199,3 +199,38 @@ func TestPaddingIPV6NonStrictFieldCountNotMatching(t *testing.T) {
 		}
 	}
 }
+
+func TestTrimsIPV4(t *testing.T) {
+	ipv4_trimmables := []string{
+		"       12.   238.   23.   10   ",
+		"        29.    98. 29.  10",
+		"192.   168.  0000029  . 10   ",
+	}
+	for _, addr := range ipv4_trimmables {
+		ipv, err := New(addr, IPV4)
+		if err != nil {
+			t.Errorf("Expecting no errors back!")
+		}
+		if ipv == nil {
+			t.Errorf("Expecting ipv object back!")
+		}
+	}
+}
+
+func TestTrimsIPV6(t *testing.T) {
+	ipv6_trimmables := []string{
+		"fce6:    d1ad    :ca44    :e589    :3806    :    9625:248:8591",
+		"fce6:    d1ad:ca44:9625:e589:3806:0248:    8591",
+		"        2001:    0DBB:    AC10:FE01:0000    :0000:0000        ",
+		"002001    :0000:    0DBB:AC10:    00FE01",
+	}
+	for _, addr := range ipv6_trimmables {
+		ipv, err := New(addr, IPV6)
+		if err != nil {
+			t.Errorf("Expecting no errors back!")
+		}
+		if ipv == nil {
+			t.Errorf("Expecting ipv object back!")
+		}
+	}
+}
