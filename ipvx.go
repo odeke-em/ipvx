@@ -16,7 +16,7 @@ type ipvxBase struct {
 	bitCountPerSegment int
 	delimiter          string
 	fieldCount         int
-	maxValuePerSegment int64
+	maxSegment         int64
 	strictFieldCount   bool
 }
 
@@ -46,8 +46,8 @@ func (ipvx *ipvxBase) create(addr string) (*IPVX, error) {
 		if v < 0 {
 			return nil, fmt.Errorf("Only expecting values >= 0, got: %v", v)
 		}
-		if v >= ipvx.maxValuePerSegment {
-			return nil, fmt.Errorf("Segment overflow: max: %v, got: %v", ipvx.maxValuePerSegment, v)
+		if v >= ipvx.maxSegment {
+			return nil, fmt.Errorf("Segment overflow: max: %v, got: %v", ipvx.maxSegment, v)
 		}
 		parsedSegments[i] = v
 	}
@@ -78,10 +78,10 @@ func (self *IPVX) Equal(other *IPVX) bool {
 		return true
 	}
 
-	var v int64
 	i := 0
-	oseg := *other.ParsedSegments
-	osegLen := len(oseg)
+	v := int64(0)
+	osegLen := len(*other.ParsedSegments)
+
 	for i, v = range *self.ParsedSegments {
 		if i < osegLen {
 			if v != (*other.ParsedSegments)[i] {
@@ -94,7 +94,7 @@ func (self *IPVX) Equal(other *IPVX) bool {
 
 	i++
 	for i < osegLen {
-		v := oseg[i]
+		v := (*other.ParsedSegments)[i]
 		if v != 0x0 {
 			return false
 		}
@@ -109,7 +109,7 @@ func new4(addr string) (*IPVX, error) {
 		bitCountPerSegment: 32,
 		delimiter:          ".",
 		fieldCount:         4,
-		maxValuePerSegment: 0xff + 1,
+		maxSegment:         0xff + 1,
 		strictFieldCount:   true,
 	}
 	return ipvb.create(addr)
@@ -120,8 +120,8 @@ func new6(addr string) (*IPVX, error) {
 		base:               16,
 		bitCountPerSegment: 32,
 		delimiter:          ":",
-		maxValuePerSegment: 0xffff + 1,
 		fieldCount:         8,
+		maxSegment:         0xffff + 1,
 	}
 	return ipvb.create(addr)
 }
