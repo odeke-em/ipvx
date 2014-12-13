@@ -98,6 +98,8 @@ func TestPaddingIPV4(t *testing.T) {
 	eqMap := map[string]string{
 		"10.0.0.0":     "0000010.0.00000.0",
 		"192.168.0.10": "0192.0168.0.00010",
+		"8.8.8.8":      "0008.0008.08.8",
+		"8.8.4.4":      "000008.000008.000004.000004",
 	}
 	for addr1, addr2 := range eqMap {
 		ipv4A, errA := New(addr1, IPV4)
@@ -124,6 +126,8 @@ func TestPaddingIPV4(t *testing.T) {
 func TestPaddingIPV4StrictFieldCountNotMatching(t *testing.T) {
 	eqMap := map[string]string{
 		"192.168.127.83": "129.168.127.83",
+		"8.8.8.8":        "0080.0008.08.80",
+		"8.08.04.004":    "08.08.04.040",
 	}
 	for addr1, addr2 := range eqMap {
 		ipv4A, errA := New(addr1, IPV4)
@@ -146,10 +150,13 @@ func TestPaddingIPV4StrictFieldCountNotMatching(t *testing.T) {
 		}
 	}
 }
+
 func TestPaddingIPV6NonStrictFieldCount(t *testing.T) {
 	eqMap := map[string]string{
 		"fce6:d1ad:ca44:9625:e589:3806:248:8591":  "fce6:d1ad:ca44:9625:e589:3806:0248:8591",
 		"2001:0DBB:AC10:FE01:0000:0000:0000:0000": "002001:0DBB:AC10:00FE01",
+		"2001:4860:4860::8888":                    "2001:4860:4860:0000:8888", // Google IPV6 DNS
+		"2001:4860:4860::8844":                    "2001:4860:4860:0000:8844", // Google IPV6 DNS
 	}
 	for addr1, addr2 := range eqMap {
 		ipv6A, errA := New(addr1, IPV6)
@@ -223,6 +230,7 @@ func TestTrimsIPV6(t *testing.T) {
 		"fce6:    d1ad:ca44:9625:e589:3806:0248:    8591",
 		"        2001:    0DBB:    AC10:FE01:0000    :0000:0000        ",
 		"002001    :0000:    0DBB:AC10:    00FE01",
+		"002001    :0000:::AC10:    00FE01", // Optional skip of fields
 	}
 	for _, addr := range ipv6_trimmables {
 		ipv, err := New(addr, IPV6)
