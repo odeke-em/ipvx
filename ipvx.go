@@ -39,11 +39,11 @@ func (ipvx *ipvxBase) create(addr string) (*IPVX, error) {
 	split := strings.Split(addr, ipvx.delimiter)
 	splitLen := len(split)
 	if ipvx.strictFieldCount && splitLen != ipvx.fieldCount {
-		return nil, fmt.Errorf("With strictFieldCount, expected exactly %d fields", ipvx.fieldCount)
+		return nil, fmt.Errorf("with strictFieldCount, expected exactly %d fields", ipvx.fieldCount)
 	}
 	// On the other hand if the field count exceeds the desired field count always an error
 	if splitLen > ipvx.fieldCount {
-		return nil, fmt.Errorf("Expecting no more than: %d fields", ipvx.fieldCount)
+		return nil, fmt.Errorf("expecting no more than: %d fields", ipvx.fieldCount)
 	}
 
 	parsedSegments := make([]int64, splitLen)
@@ -57,12 +57,12 @@ func (ipvx *ipvxBase) create(addr string) (*IPVX, error) {
 			return nil, err
 		}
 		if v < 0 {
-			return nil, fmt.Errorf("Only expecting values >= 0, got: %v", v)
+			return nil, fmt.Errorf("only expecting values >= 0, got: %v", v)
 		}
 		// Ideally this condition should never match.
 		// This is the last sanity check to catch overflows.
 		if v > ipvx.maxSegment {
-			return nil, fmt.Errorf("Segment overflow: max: %v, got: %v", ipvx.maxSegment, v)
+			return nil, fmt.Errorf("segment overflow: max: %v, got: %v", ipvx.maxSegment, v)
 		}
 		parsedSegments[i] = v
 	}
@@ -80,7 +80,7 @@ func New(addr string, base uint) (*IPVX, error) {
 	case IPV6:
 		return new6(addr)
 	}
-	return nil, fmt.Errorf("Unknown protocol with base %d", base)
+	return nil, fmt.Errorf("unknown protocol with base %d", base)
 }
 
 func (self *IPVX) Equal(other *IPVX) bool {
@@ -93,10 +93,10 @@ func (self *IPVX) Equal(other *IPVX) bool {
 
 	i := 0
 	v := int64(0)
-	osegLen := len(*other.ParsedSegments)
+	otherSegLen := len(*other.ParsedSegments)
 
 	for i, v = range *self.ParsedSegments {
-		if i < osegLen {
+		if i < otherSegLen {
 			if v != (*other.ParsedSegments)[i] {
 				return false
 			}
@@ -106,7 +106,7 @@ func (self *IPVX) Equal(other *IPVX) bool {
 	}
 
 	i++
-	for i < osegLen {
+	for i < otherSegLen {
 		v := (*other.ParsedSegments)[i]
 		if v != 0x0 {
 			return false

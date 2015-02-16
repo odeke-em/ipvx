@@ -65,6 +65,7 @@ func TestSegmentLimitsIPV6(t *testing.T) {
 		}
 	}
 }
+
 func TestIPV4(t *testing.T) {
 	ipv4, err := New("192.168.1.100", IPV4)
 	if err != nil {
