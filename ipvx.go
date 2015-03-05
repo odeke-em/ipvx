@@ -32,7 +32,7 @@ type ipvxBase struct {
 
 type IPVX struct {
 	Addr           string
-	ParsedSegments *[]int64
+	ParsedSegments []int64
 }
 
 func (ipvx *ipvxBase) create(addr string) (*IPVX, error) {
@@ -68,7 +68,7 @@ func (ipvx *ipvxBase) create(addr string) (*IPVX, error) {
 	}
 	ipxObj := &IPVX{
 		Addr:           addr,
-		ParsedSegments: &parsedSegments,
+		ParsedSegments: parsedSegments,
 	}
 	return ipxObj, nil
 }
@@ -93,11 +93,11 @@ func (self *IPVX) Equal(other *IPVX) bool {
 
 	i := 0
 	v := int64(0)
-	otherSegLen := len(*other.ParsedSegments)
+	otherSegLen := len(other.ParsedSegments)
 
-	for i, v = range *self.ParsedSegments {
+	for i, v = range self.ParsedSegments {
 		if i < otherSegLen {
-			if v != (*other.ParsedSegments)[i] {
+			if v != other.ParsedSegments[i] {
 				return false
 			}
 		} else if v != 0x0 {
@@ -107,8 +107,7 @@ func (self *IPVX) Equal(other *IPVX) bool {
 
 	i++
 	for i < otherSegLen {
-		v := (*other.ParsedSegments)[i]
-		if v != 0x0 {
+		if other.ParsedSegments[i] != 0x0 {
 			return false
 		}
 		i++
