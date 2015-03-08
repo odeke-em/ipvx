@@ -24,7 +24,7 @@ func TestInit(t *testing.T) {
 	ipv, err = New("192.167.23", IPV4)
 	fmt.Println()
 	if err == nil {
-		t.Errorf("Expected an error due to invalid chars in addr!")
+		t.Errorf("Expected an error due to incomplete fields in addr!")
 	}
 	if ipv != nil {
 		t.Errorf("Expected a failed init due to an invalid base!")
@@ -103,14 +103,26 @@ func TestIPV6(t *testing.T) {
 }
 
 func TestPaddingIPV4(t *testing.T) {
-	eqMap := map[string]string{
-		"10.0.0.0":     "0000010.0.00000.0",
-		"192.168.0.10": "0192.0168.0.00010",
-		"8.8.8.8":      "0008.0008.08.8",
-		"8.8.4.4":      "000008.000008.000004.000004",
+	pairs := []struct {
+		first string
+		last  string
+	}{
+		{
+			first: "10.0.0.0", last: "0000010.0.00000.0",
+		},
+		{
+			first: "192.168.0.10", last: "0192.0168.0.00010",
+		},
+		{
+			first: "8.8.8.8", last: "0008.0008.08.8",
+		},
+		{
+			first: "8.8.4.4", last: "000008.000008.000004.000004",
+		},
 	}
-	for addr1, addr2 := range eqMap {
-		ipv4A, errA := New(addr1, IPV4)
+
+	for _, pair := range pairs {
+		ipv4A, errA := New(pair.first, IPV4)
 		if errA != nil {
 			t.Errorf("Didn't expect any error, got: %v", errA)
 		}
@@ -118,7 +130,7 @@ func TestPaddingIPV4(t *testing.T) {
 			t.Errorf("Non nil expected!")
 		}
 
-		ipv4B, errB := New(addr2, IPV4)
+		ipv4B, errB := New(pair.last, IPV4)
 		if errB != nil {
 			t.Errorf("Didn't expect any error, got: %v", errB)
 		}
@@ -132,13 +144,23 @@ func TestPaddingIPV4(t *testing.T) {
 }
 
 func TestPaddingIPV4StrictFieldCountNotMatching(t *testing.T) {
-	eqMap := map[string]string{
-		"192.168.127.83": "129.168.127.83",
-		"8.8.8.8":        "0080.0008.08.80",
-		"8.08.04.004":    "08.08.04.040",
+	pairs := []struct {
+		first string
+		last  string
+	}{
+		{
+			first: "192.168.127.83", last: "129.168.127.83",
+		},
+		{
+			first: "8.8.8.8", last: "0080.0008.08.80",
+		},
+		{
+			first: "8.08.04.004", last: "08.08.04.040",
+		},
 	}
-	for addr1, addr2 := range eqMap {
-		ipv4A, errA := New(addr1, IPV4)
+
+	for _, pair := range pairs {
+		ipv4A, errA := New(pair.first, IPV4)
 		if errA != nil {
 			t.Errorf("Didn't expect any error, got: %v", errA)
 		}
@@ -146,7 +168,7 @@ func TestPaddingIPV4StrictFieldCountNotMatching(t *testing.T) {
 			t.Errorf("Non nil expected!")
 		}
 
-		ipv4B, errB := New(addr2, IPV4)
+		ipv4B, errB := New(pair.last, IPV4)
 		if errB != nil {
 			t.Errorf("Didn't expect any error, got: %v", errB)
 		}
@@ -160,14 +182,26 @@ func TestPaddingIPV4StrictFieldCountNotMatching(t *testing.T) {
 }
 
 func TestPaddingIPV6NonStrictFieldCount(t *testing.T) {
-	eqMap := map[string]string{
-		"fce6:d1ad:ca44:9625:e589:3806:248:8591":  "fce6:d1ad:ca44:9625:e589:3806:0248:8591",
-		"2001:0DBB:AC10:FE01:0000:0000:0000:0000": "002001:0DBB:AC10:00FE01",
-		"2001:4860:4860::8888":                    "2001:4860:4860:0000:8888", // Google IPV6 DNS
-		"2001:4860:4860::8844":                    "2001:4860:4860:0000:8844", // Google IPV6 DNS
+	pairs := []struct {
+		first string
+		last  string
+	}{
+		{
+			first: "fce6:d1ad:ca44:9625:e589:3806:248:8591", last: "fce6:d1ad:ca44:9625:e589:3806:0248:8591",
+		},
+		{
+			first: "2001:0DBB:AC10:FE01:0000:0000:0000:0000", last: "002001:0DBB:AC10:00FE01",
+		},
+		{
+			first: "2001:4860:4860::8888", last: "2001:4860:4860:0000:8888", // Google IPV6 DNS
+		},
+		{
+			first: "2001:4860:4860::8844", last: "2001:4860:4860:0000:8844", // Google IPV6 DNS
+		},
 	}
-	for addr1, addr2 := range eqMap {
-		ipv6A, errA := New(addr1, IPV6)
+
+	for _, pair := range pairs {
+		ipv6A, errA := New(pair.first, IPV6)
 		if errA != nil {
 			t.Errorf("Didn't expect any error, got: %v", errA)
 		}
@@ -175,7 +209,7 @@ func TestPaddingIPV6NonStrictFieldCount(t *testing.T) {
 			t.Errorf("Non nil expected!")
 		}
 
-		ipv6B, errB := New(addr2, IPV6)
+		ipv6B, errB := New(pair.last, IPV6)
 		if errB != nil {
 			t.Errorf("Didn't expect any error, got: %v", errB)
 		}
@@ -189,12 +223,19 @@ func TestPaddingIPV6NonStrictFieldCount(t *testing.T) {
 }
 
 func TestPaddingIPV6NonStrictFieldCountNotMatching(t *testing.T) {
-	eqMap := map[string]string{
-		"fce6:d1ad:ca44:e589:3806:9625:248:8591": "fce6:d1ad:ca44:9625:e589:3806:0248:8591",
-		"2001:0DBB:AC10:FE01:0000:0000:0000":     "002001:0000:0DBB:AC10:00FE01",
+	pairs := []struct {
+		first string
+		last  string
+	}{
+		{
+			first: "fce6:d1ad:ca44:e589:3806:9625:248:8591", last: "fce6:d1ad:ca44:9625:e589:3806:0248:8591",
+		},
+		{
+			first: "2001:0DBB:AC10:FE01:0000:0000:0000", last: "002001:0000:0DBB:AC10:00FE01",
+		},
 	}
-	for addr1, addr2 := range eqMap {
-		ipv6A, errA := New(addr1, IPV6)
+	for _, pair := range pairs {
+		ipv6A, errA := New(pair.first, IPV6)
 		if errA != nil {
 			t.Errorf("Didn't expect any error, got: %v", errA)
 		}
@@ -202,7 +243,7 @@ func TestPaddingIPV6NonStrictFieldCountNotMatching(t *testing.T) {
 			t.Errorf("Non nil expected!")
 		}
 
-		ipv6B, errB := New(addr2, IPV6)
+		ipv6B, errB := New(pair.last, IPV6)
 		if errB != nil {
 			t.Errorf("Didn't expect any error, got: %v", errB)
 		}
@@ -243,10 +284,43 @@ func TestTrimsIPV6(t *testing.T) {
 	for _, addr := range ipv6_trimmables {
 		ipv, err := New(addr, IPV6)
 		if err != nil {
-			t.Errorf("Expecting no errors back!")
+			t.Errorf("Expecting no errors back, got %v", err)
 		}
 		if ipv == nil {
 			t.Errorf("Expecting ipv object back!")
+		}
+	}
+}
+
+func TestIPV6OptionalityCompletion(t *testing.T) {
+	pairs := []struct {
+		first string
+		last  string
+	}{
+		{
+			first: "dfe::", last: "0dfe:0000:0000:0000:0000:0000:0000:0000",
+		},
+		{
+			first: "fdfe::0ffe", last: "fdfe::0ffe::",
+		},
+		{
+			first: "2001::eef1", last: "2001::eef1::",
+		},
+	}
+
+	for _, pair := range pairs {
+		first, fErr := New(pair.first, IPV6)
+		if fErr != nil {
+			t.Errorf("expected successful creation of first, instead got: %v", fErr)
+		}
+		last, sErr := New(pair.last, IPV6)
+
+		if sErr != nil {
+			t.Errorf("expected successful creation of last, instead got: %v", sErr)
+		}
+
+		if !first.Equal(last) {
+			t.Errorf("%v should be equal to %v", first, last)
 		}
 	}
 }
